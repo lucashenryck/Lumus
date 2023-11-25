@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "413165348335",
+    "project_id": "lumus-9e6ea",
+    "storage_bucket": "lumus-9e6ea.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:413165348335:android:f37dc28a80da65bf84821a",
+        "android_client_info": {
+          "package_name": "com.example.lumus"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBWdId_friC4gUtQWQzKEBADGuUXeKLQf4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
