@@ -30,7 +30,6 @@ class TrendingMovies extends StatelessWidget {
                   final movieDetails = await TmdbApi().getMovieDetails(movie.id);
                   final cast = await TmdbApi().getCast(movie.id);
                   final crew = await TmdbApi().getCrew(movie.id);
-                  final backdrops = await TmdbApi().getBackdrops(movie.id);
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -38,7 +37,6 @@ class TrendingMovies extends StatelessWidget {
                         movie: movieDetails,
                         cast: cast,
                         crew: crew,
-                        backdrops: backdrops,
                       ),
                     ),
                   );

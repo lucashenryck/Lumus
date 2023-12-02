@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyListTile extends StatelessWidget {
   final IconData icon;
@@ -14,7 +15,7 @@ class MyListTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: ListTile(
         leading: Icon(
           icon,
@@ -24,10 +25,11 @@ class MyListTile extends StatelessWidget {
       onTap: onTap,
       title:Text(
           text,
-          style: TextStyle(
-            color: Color.fromRGBO(240, 240, 240, 1),
-            fontSize: 18
-          ),
+          style: GoogleFonts.dmSans(
+                    color: Color.fromRGBO(240, 240, 240, 1),
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
         ),
       ),
     );

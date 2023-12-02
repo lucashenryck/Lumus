@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: Color.fromRGBO(39, 52, 87, 1),
+        backgroundColor: Color.fromRGBO(1, 17, 31, 1),
         appBar: HomeAppBar.appBar(),
         drawer: const MyDrawer(),
         body: Column(
@@ -28,30 +28,32 @@ class _HomePageState extends State<HomePage> {
             Expanded(
               child: StreamBuilder(
                 stream: FirebaseFirestore.instance
-                  .collection("Users collections")
-                  .doc(currentUser.uid)
-                  .collection("User posts")
-                  .snapshots(),
-                builder: (context, snapshot) {
-                  if(snapshot.hasData){
-                    return ListView.builder(
-                      itemCount: snapshot.data!.docs.length,
-                      itemBuilder: (context, index){
-                        final post = snapshot.data!.docs[index];
-                        return PostUI(
-                          name: post['name'], 
-                          username: post['username'], 
-                          content: post['content'], 
-                        );
-                      }
+                    .collection("Posts")
+                    .snapshots(),
+                builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(),
                     );
-                  } else if(snapshot.hasError){
+                  }
+                  if (snapshot.hasError) {
                     return Center(
                       child: Text('Erro: ' + snapshot.error.toString()),
                     );
                   }
-                  return const Center(
-                    child: CircularProgressIndicator(),
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return const Center(
+                      child: Text('NADA ATÉ O MOMENTO!'),
+                    );
+                  }
+                  return ListView.builder(
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      final post = snapshot.data!.docs[index];
+                      return PostUI(
+                        post: post
+                      );
+                    },
                   );
                 },
               ),

@@ -2,7 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lumus/api/tmdb_api.dart';
-import 'package:lumus/pages/search_movies_and_series_by_name.dart';
+import 'package:lumus/pages/searching_page.dart';
 import 'package:lumus/search_content/list_movies.dart';
 import 'package:lumus/search_content/trending_movies.dart';
 import 'package:lumus/components/drawer.dart';
@@ -39,9 +39,9 @@ class _SearchPageState extends State<SearchPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(19, 32, 67, 1),
+      backgroundColor: Color.fromRGBO(3, 21, 37, 1),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(19, 32, 67, 1),
+        backgroundColor: Color.fromRGBO(3, 21, 37, 1),
         title: SizedBox(
           height: 40,
           child: TextField(
@@ -50,22 +50,30 @@ class _SearchPageState extends State<SearchPage> {
             style: TextStyle(color: Color.fromRGBO(240, 240, 240, 1)),
             decoration: InputDecoration(
               contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-              fillColor: Color.fromRGBO(33, 53, 85, 1),
+              fillColor: Color.fromRGBO(5, 34, 59, 1),
               filled: true,
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(50),
                 borderSide: const BorderSide(
-                  color: Color.fromRGBO(33, 53, 85, 1)
+                  color: Color.fromRGBO(5, 34, 59, 1)
                 )
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(50),
                 borderSide: const BorderSide(
-                  color: Color.fromRGBO(33, 53, 85, 1)
+                  color: Color.fromRGBO(5, 34, 59, 1)
                 )
               ),
               hintText: 'Pesquisar',
-              hintStyle: GoogleFonts.dmSans(color: Color.fromRGBO(240, 240, 240, 1))
+              hintStyle: GoogleFonts.dmSans(
+                color: Color.fromRGBO(240, 240, 240, 1), 
+                fontSize: 18, 
+                fontWeight: FontWeight.bold
+              ),
+              suffixIcon: Icon(
+                Icons.search, 
+                color: Color.fromRGBO(240, 240, 240, 1)
+              ),
             ),
             onTap: () {
               Navigator.push(
@@ -97,8 +105,8 @@ class _SearchPageState extends State<SearchPage> {
               child: Text(
                 'Top 10 filmes da semana', 
                 style: GoogleFonts.dmSans(
-                  fontSize: 25, 
-                  fontWeight: FontWeight.w400, 
+                  fontSize: 20, 
+                  fontWeight: FontWeight.bold, 
                   color: Color.fromRGBO(240, 240, 240, 1)
                 ),
               ),
@@ -124,8 +132,8 @@ class _SearchPageState extends State<SearchPage> {
               child: Text(
                 'Top 10 séries da semana', 
                 style: GoogleFonts.dmSans(
-                  fontSize: 25, 
-                  fontWeight: FontWeight.w400, 
+                  fontSize: 20, 
+                  fontWeight: FontWeight.bold, 
                   color: Color.fromRGBO(240, 240, 240, 1)
                 ),
               ),
@@ -151,8 +159,8 @@ class _SearchPageState extends State<SearchPage> {
               child: Text(
                 'Novidades dos amigos',
                 style: GoogleFonts.dmSans(
-                    fontSize: 25, 
-                    fontWeight: FontWeight.w400, 
+                    fontSize: 20, 
+                    fontWeight: FontWeight.bold, 
                     color: Color.fromRGBO(240, 240, 240, 1)
                 ),
               ),
@@ -163,8 +171,8 @@ class _SearchPageState extends State<SearchPage> {
               child: Text(
                 'Recomendações dos amigos',
                 style: GoogleFonts.dmSans(
-                    fontSize: 25, 
-                    fontWeight: FontWeight.w400, 
+                    fontSize: 20, 
+                    fontWeight: FontWeight.bold, 
                     color: Color.fromRGBO(240, 240, 240, 1)
                 ),
               ),

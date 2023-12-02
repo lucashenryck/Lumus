@@ -1,67 +1,44 @@
-import 'package:lumus/models/movie.dart';
-import 'package:lumus/models/post.dart';
-import 'package:lumus/models/review.dart';
-import 'package:lumus/models/series.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserLumus{
-  String? id;
-  String? email;
-  String? password;
-  String? name;
-  String? username;
-  String? profilePhoto;
-  List<Movie>? favoriteMovies;
-  List<Series>? favoriteSeries;
-  List<Movie>? watchlistMovies;
-  List<Series>? watchlistSeries;
-  List<Series>? watchedSeries;
-  List<Movie>? watchedMovies;
-  List<UserLumus>? following;
-  List<UserLumus>? followers;
-  List<Movie>? customMoviesLists;
-  List<Series>? customSeriesLists;
-  List<Movie>? likedMovies;
-  List<Series>? likedSeries;
-  String? description;
-  List<Post>? posts;
-  List<Review>? reviews;
+  final String id;
+  final String email;
+  final String username;
+  final String? profilePhoto;
+  final String? description;
+  final List following;
+  final List followers;
 
-  UserLumus({
-    this.id,
-    this.email,
-    this.password,
-    this.name,
-    this.username,
-    this.profilePhoto,
-    this.favoriteMovies,
-    this.favoriteSeries,
-    this.watchlistMovies,
-    this.watchlistSeries,
-    this.watchedSeries,
-    this.watchedMovies,
-    this.following,
-    this.followers,
-    this.customMoviesLists,
-    this.customSeriesLists,
-    this.likedMovies,
-    this.likedSeries,
-    this.description,
-    this.posts,
-    this.reviews
+  const UserLumus({
+    required this.id,
+    required this.email,
+    required this.username,
+    required this.profilePhoto,
+    required this.description,
+    required this.following,
+    required this.followers,
   });
 
-  UserLumus.emptyConstructor();
-
-  Map<String, dynamic> toMap(){
-    Map<String,dynamic> map = {
+  Map<String, dynamic> toJson() => {
       "user_id" : id,
       "email"   : email,
-      "name"    : name,
       "username"   : username,
-      "password"   : password,
       "profile_photo" : profilePhoto,
-      "description" : description
-    };
-    return map;
+      "description" : description, 
+      "following" : following,
+      "followers" : followers
+  };
+
+  static UserLumus fromSnap(DocumentSnapshot snap){
+    var snapshot = snap.data() as Map<String, dynamic>;
+    return UserLumus(
+      username: snapshot['username'],
+      email: snapshot['email'],
+      id: snapshot['user_id'],
+      profilePhoto: snapshot['profile_photo'],
+      description: snapshot['description'],
+      followers: snapshot['followers'],
+      following: snapshot['following'],
+    );
   }
 }

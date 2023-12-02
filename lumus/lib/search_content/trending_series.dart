@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lumus/api/tmdb_api.dart';
 import 'package:lumus/constants.dart';
 import 'package:lumus/pages/series_details_page.dart';
 
@@ -20,18 +21,28 @@ class TrendingSeries extends StatelessWidget {
         physics: const BouncingScrollPhysics(),
         itemCount: 10,
         itemBuilder: (context, itemIndex){
+          final series = snapshot.data[itemIndex];
           return Padding(
             padding: const EdgeInsets.all(8.0),
             child: GestureDetector(
-              onTap: (){
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => SeriesDetailsPage(
-                      series: snapshot.data[itemIndex],
+              onTap: () async {
+                try{
+                  final seriesDetails = await TmdbApi().getSeriesDetails(series.id);
+                  final cast = await TmdbApi().getCastFromSeries(series.id);
+                  final crew = await TmdbApi().getCrewFromSeries(series.id);
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => SeriesDetailsPage(
+                        series: seriesDetails,
+                        cast: cast,
+                        crew: crew,
+                      ),
                     ),
-                  ),
-                );
+                  );
+                }catch (e){
+                  print('Erro ao obter detalhes da série: $e');
+                }
               },
               child: Stack(
                 children: [

@@ -1,9 +1,9 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:lumus/components/button.dart';
 import 'package:lumus/components/textfield.dart';
-import 'package:lumus/models/user.dart';
+import 'package:lumus/resources/auth_methods.dart';
+import 'package:quickalert/models/quickalert_type.dart';
+import 'package:quickalert/widgets/quickalert_dialog.dart';
 
 class RegisterPage extends StatefulWidget {
   final Function()? onTap;
@@ -17,101 +17,53 @@ class RegisterPage extends StatefulWidget {
 }
 
 class _RegisterPageState extends State<RegisterPage> {
-  //Text Editing Controllers
-  final emailTextController = TextEditingController();
-  final passwordTextController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
-  final nameTextController = TextEditingController();
-  final usernameTextController = TextEditingController();
+  final _emailTextController = TextEditingController();
+  final _passwordTextController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _usernameTextController = TextEditingController();
 
-  late UserLumus user;
-
-  //Sign user up method
-  Future signUserUp() async{
-    //Show loading circle
-    showDialog(
-      context: context, 
-      builder: (context){
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      }
-    );
-
-    //Make sure passwords match
-    if(passwordTextController.text != confirmPasswordController.text){
-      //Pop the loading circle
-      Navigator.pop(context);
-
-      //Show error message, passwords don't match
-      showErrorMessage("Senhas não correspondem!");
-      return;
-    }
-  
-    //Try creating the user
-    try{
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: emailTextController.text.trim(), 
-        password: passwordTextController.text.trim(),
-      ).then((firebaseUser) async{
-        user.id = firebaseUser.user!.uid;
-        user.name = nameTextController.text.trim();
-
-        String username = usernameTextController.text.trim();
-        username = username.replaceAll(' ', ''); 
-        if (!username.startsWith('@')) {
-          username = '@$username'; 
-        }
-        user.username = username;
-        
-        user.email = emailTextController.text.trim();
-        user.password = passwordTextController.text.trim();
-        FirebaseFirestore.instance.collection("Users")
-        .doc(firebaseUser.user!.uid)
-        .set(user.toMap());
-        Navigator.pushReplacementNamed(context, "/");
-      });
-
-      //Pop the loading circle
-      Navigator.pop(context);
-
-    }on FirebaseAuthException catch (e){
-
-      //Pop the loading circle
-      Navigator.pop(context);
-
-      //Show error message
-      showErrorMessage(e.code);
-    }
+  @override
+  void dispose(){
+    super.dispose();
+    _emailTextController.dispose();
+    _passwordTextController.dispose();
+    _usernameTextController.dispose();
+    _confirmPasswordController.dispose();
   }
 
-  void showErrorMessage(String message){
-    showDialog(
+  void confirmationAlert(){
+    QuickAlert.show(
       context: context, 
-      builder: (context){
-        return AlertDialog(
-          backgroundColor: Colors.purple,
-          content: SizedBox(
-            height: 18,
-            child: Center(
-              child: Text(
-                message,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-        );
-      },
+      type: QuickAlertType.success,
+      text: "Conta criada com sucesso!",
+      title: "Sucesso",
+      confirmBtnText: "Continuar"
     );
-  } 
+  }
+
+  void errorAlert(){
+    QuickAlert.show(
+      context: context, 
+      type: QuickAlertType.error,
+      text: "Não foi possível continuar com seu cadastro!",
+      title: "Erro!",
+      confirmBtnText: "Fechar"
+    );
+  }
+
+  void signUpUser() async {
+    String response = await AuthMethods().signUpUser(
+      email: _emailTextController.text.trim(), 
+      password: _passwordTextController.text.trim(), 
+      username: _usernameTextController.text.trim(),
+      confirmPassword: _confirmPasswordController.text.trim()
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(19, 32, 67, 1),
+      backgroundColor: Color.fromRGBO(3, 21, 37, 1),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -141,7 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 //E-mail textfield
                 MyTextField(
-                  controller: emailTextController,
+                  controller: _emailTextController,
                   hintText: 'E-mail',
                   obscureText: false,
                 ),
@@ -149,25 +101,16 @@ class _RegisterPageState extends State<RegisterPage> {
                 const SizedBox(height: 15),
 
                 MyTextField(
-                  controller: nameTextController, 
-                  hintText: 'Nome', 
+                  controller: _usernameTextController, 
+                  hintText: 'Nome de usuário', 
                   obscureText: false,
-                ),
-
-                const SizedBox(height: 15),
-
-                MyTextField(
-                  controller: usernameTextController, 
-                  hintText: '@', 
-                  obscureText: false,
-                  isUsername: true,
                 ),
 
                 const SizedBox(height: 15),
 
                 //Password Textfield
                 MyTextField(
-                  controller: passwordTextController, 
+                  controller: _passwordTextController, 
                   hintText: 'Senha', 
                   obscureText: true,
                 ),
@@ -176,7 +119,7 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 //Confirm Password Textfield
                 MyTextField(
-                  controller: confirmPasswordController, 
+                  controller: _confirmPasswordController, 
                   hintText: 'Confirmar senha', 
                   obscureText: true,
                 ),
@@ -186,7 +129,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 //Sign in Button
                 MyButton(
                   text: 'Cria conta',
-                  onTap: signUserUp, 
+                  onTap: signUpUser
                 ),
 
                 const SizedBox(height: 25),

@@ -1,79 +1,209 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:lumus/api/tmdb_api.dart';
-import 'package:lumus/models/castncrew.dart';
-import 'package:lumus/models/movie.dart';
-import 'package:lumus/util/tmdb_utils.dart';
+import 'package:lumus/models/user.dart';
+import 'package:lumus/pages/searching%20for%20create/searching_page_for_post_.dart';
+import 'package:lumus/pages/searching%20for%20create/searching_page_for_review.dart';
+import 'package:lumus/providers/user_provider.dart';
+import 'package:lumus/resources/firestore_methods.dart';
+import 'package:provider/provider.dart';
+import 'package:quickalert/quickalert.dart';
 
-class MyPost extends StatefulWidget {
-  const MyPost({
-    super.key, 
-  });
+class CreatePost extends StatefulWidget {
+  const CreatePost({super.key});
 
   @override
-  State<MyPost> createState() => _MyPostState();
+  State<CreatePost> createState() => _CreatePostState();
 }
 
-class _MyPostState extends State<MyPost> {
-  List<Movie> searchResults = [];
-  final searchController = TextEditingController();
+class _CreatePostState extends State<CreatePost> {
+  final TextEditingController _contentController = TextEditingController();
   
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        TextField(
-          onChanged: onSearchTextChanged,
-          autofocus: true,
-          controller: searchController,
-          style: TextStyle(color: Color.fromRGBO(219, 158, 158, 1)),
-          decoration: InputDecoration(
-            contentPadding: const EdgeInsets.symmetric(horizontal: 20),
-            fillColor: Color.fromRGBO(33, 53, 85, 1),
-            filled: true,
-            enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(50),
-              borderSide: const BorderSide(
-                color: Color.fromRGBO(33, 53, 85, 1)
-              )
-            ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(50),
-            borderSide: const BorderSide(
-              color: Color.fromRGBO(33, 53, 85, 1)
-            )
-          ),
-          hintText: 'Sobre o que você quer publicar?',
-          hintStyle: GoogleFonts.dmSans(color: Color.fromRGBO(240, 240, 240, 1))
-          ),
-        ),
-      ],
+  void sendPost(
+    String userId, 
+    String username, 
+    String? profilePhoto
+  ) async {
+    try{
+      String response = await FirestoreMethods().sendPost(
+        _contentController.text, 
+        userId, 
+        username, 
+        profilePhoto
+      );
+      if(response == "success"){
+        confirmationAlert();
+      } else{
+        errorAlert();
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  void confirmationAlert(){
+    QuickAlert.show(
+      context: context, 
+      type: QuickAlertType.success,
+      text: "Post publicado!",
+      title: "Sucesso!",
+      confirmBtnText: "Concluir"
     );
   }
 
-  Future<void> onSearchTextChanged(String query) async {
-    if (query.isEmpty) {
-      setState(() {
-        searchResults.clear();
-      });
-      return;
-    }
+  void errorAlert(){
+    QuickAlert.show(
+      context: context, 
+      type: QuickAlertType.error,
+      text: "Algo de errado ocorreu!",
+      title: "Erro!",
+      confirmBtnText: "Continuar"
+    );
+  }
 
-    try {
-      final results = await TmdbApi().searchMovie(query);
-      setState(() {
-        searchResults = results;
-      });
-      List<int> movieIds = TmdbUtils.getIdsFromSearchResults(searchResults);
-      Map<int, CastAndCrew> directorsMap = await TmdbUtils.getDirectors(movieIds);
-
-      for (var movie in searchResults) {
-      movie.director = directorsMap[movie.id];
-    }
-
-    } catch (e) {
-      print('Error searching for movies: $e');
-      // Handle error as needed
-    }
+  @override
+  void dispose(){
+    super.dispose();
+    _contentController.dispose();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    final UserLumus user = Provider.of<UserProvider>(context).getUserLumus;
+    return Scaffold(
+      backgroundColor: Color.fromRGBO(3, 30, 54, 1),
+      appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(
+            Icons.close,
+            size: 30,
+          ),
+          onPressed: (){
+            Navigator.pop(context);
+          },
+        ),
+        backgroundColor: Color.fromRGBO(3, 21, 37, 1),
+        elevation: 0,
+        actions: [
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 10, right: 10),
+            child: ElevatedButton(
+              onPressed: () => sendPost(
+                user.id, 
+                user.username, 
+                user.profilePhoto
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Color.fromRGBO(240, 240, 240, 1),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(30.0),
+                ),
+              ),
+              child: Text(
+                'Publicar',
+                style: GoogleFonts.dmSans(
+                  color: Color.fromRGBO(3, 21, 37, 1),
+                  fontSize: 15,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          )
+        ],
+      ),
+      body: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(top: 20),
+                child: Column(
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context){
+                              return SearchingForPostPage();
+                          }),
+                        );
+                      }, 
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Color.fromRGBO(240, 240, 240, 1)), // Change the color here
+                      ),
+                      child: Text(
+                        'É um post sobre algo?',
+                        style: GoogleFonts.dmSans(
+                          color: Color.fromRGBO(240, 240, 240, 1),
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    OutlinedButton(
+                      onPressed: () {
+                        Navigator.push(context,
+                          MaterialPageRoute(builder: (context){
+                              return SearchingForReviewPage();
+                          }),
+                        );
+                      }, 
+                      style: OutlinedButton.styleFrom(
+                        side: BorderSide(color: Color.fromRGBO(240, 240, 240, 1)), // Change the color here
+                      ),
+                      child: Text(
+                        'É uma review sobre algo?',
+                        style: GoogleFonts.dmSans(
+                          color: Color.fromRGBO(240, 240, 240, 1),
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          Padding(
+              padding: const EdgeInsets.only(top: 30, left: 20, right: 20),
+              child: TextFormField(
+                controller: _contentController,
+                minLines: 1,
+                maxLines: 500,
+                autofocus: true,
+                keyboardType: TextInputType.multiline,
+                style: GoogleFonts.dmSans(
+                  color: Color.fromRGBO(240, 240, 240, 1), // Change the color of the typed text
+                  textStyle: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+                decoration: InputDecoration(
+                  hintText: 'O que você deseja postar?',
+                  hintStyle: GoogleFonts.dmSans(
+                    color: Color.fromRGBO(240, 240, 240, 1),
+                    textStyle: TextStyle(
+                      fontSize: 18,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide(
+                      color: Colors.transparent,  // Change the color of the border for the normal state
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.all(Radius.circular(10)),
+                    borderSide: BorderSide(
+                      color: Colors.transparent,  // Change the color of the border for the focused state
+                    ),
+                  ),
+                ),
+              ),
+            )
+        ],
+      ),
+    );
   }
 }

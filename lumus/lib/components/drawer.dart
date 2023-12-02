@@ -25,7 +25,7 @@ class _MyDrawerState extends State<MyDrawer> {
     Navigator.push(
       context, 
       MaterialPageRoute(
-        builder: (context) => const MyProfile()
+        builder: (context) => MyProfile(userUid: FirebaseAuth.instance.currentUser!.uid)
       )
     );
   }
@@ -34,7 +34,7 @@ class _MyDrawerState extends State<MyDrawer> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: Drawer(
-        backgroundColor: Color.fromRGBO(19, 32, 67, 1),
+        backgroundColor: Color.fromRGBO(3, 21, 37, 1),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -47,13 +47,6 @@ class _MyDrawerState extends State<MyDrawer> {
                     color: Color.fromRGBO(240, 240, 240, 1),
                     size: 70,
                   ),
-                ),
-    
-                //Profile
-                MyListTile(
-                  icon: Icons.person, 
-                  text: 'Perfil',
-                  onTap: goToProfilePage
                 ),
     
                 //My reviews

@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 
 class HomeAppBar{
@@ -12,31 +13,30 @@ class HomeAppBar{
           child: IconButton(
             onPressed: (){}, 
             icon: Icon(CupertinoIcons.ellipses_bubble),
-            selectedIcon: Icon(CupertinoIcons.ellipses_bubble_fill),
           ),
         )
       ],
-      backgroundColor: Color.fromRGBO(19, 32, 67, 1),
+      backgroundColor: Color.fromRGBO(3, 21, 37, 1),
       bottom: TabBar(
         tabs: [
           Tab(
             child: Text(
               'Geral',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Color.fromRGBO(240, 240, 240, 1)
-              ),
+              style: GoogleFonts.dmSans(
+                    color: Color.fromRGBO(240, 240, 240, 1),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
           Tab(
             child: Text(
               'Seguindo',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 20,
-                color: Color.fromRGBO(240, 240, 240, 1)
-              ),
+              style: GoogleFonts.dmSans(
+                    color: Color.fromRGBO(240, 240, 240, 1),
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
             ),
           ),
         ],

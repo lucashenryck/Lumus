@@ -1,9 +1,19 @@
 import 'package:lumus/api/tmdb_api.dart';
 import 'package:lumus/models/castncrew.dart';
 import 'package:lumus/models/movie.dart';
+import 'package:lumus/models/series.dart';
 
 class TmdbUtils{
   static List<int> getIdsFromSearchResults(List<Movie> results){
+    List<int> ids = [];
+    for(var result in results){
+      int id = result.id ?? 0;
+      ids.add(id);
+    }
+    return ids;
+  }
+
+  static List<int> getIdsFromSeriesResults(List<Series> results){
     List<int> ids = [];
     for(var result in results){
       int id = result.id ?? 0;

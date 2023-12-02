@@ -1,10 +1,13 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:lumus/pages/create/create_post_or_review_page.dart';
+import 'package:lumus/pages/create/create_post.dart';
 import 'package:lumus/pages/home_page.dart';
 import 'package:lumus/pages/notifications.dart';
 import 'package:lumus/pages/profile_page.dart';
 import 'package:lumus/pages/search_page.dart';
+import 'package:lumus/providers/user_provider.dart';
+import 'package:provider/provider.dart';
 
 class Navigation extends StatefulWidget {
   const Navigation({super.key});
@@ -16,12 +19,22 @@ class Navigation extends StatefulWidget {
 class _NavigationState extends State<Navigation> {
   int currentIndex = 0;
 
+   @override 
+  void initState(){
+    super.initState();
+    addData();
+  }
+
+  addData() async {
+    UserProvider userProvider = Provider.of(context, listen: false);
+    await userProvider.refreshUserLumus();
+  }
+
   final List<Widget> telas = [
     const HomePage(),
     const SearchPage(),
-    const CreatePostOrReviewPage(),
     const NotificationsPage(),
-    const MyProfile()
+    MyProfile(userUid: FirebaseAuth.instance.currentUser!.uid)
   ];
 
   @override
@@ -31,23 +44,27 @@ class _NavigationState extends State<Navigation> {
         index: currentIndex,
         children: telas,
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: FloatingActionButton(
         backgroundColor: Color.fromRGBO(240, 240, 240, 1),
         hoverElevation: 10,
-        elevation: 4,
+        elevation: 30,
         child: const Icon(
           CupertinoIcons.add,
-          color: Color.fromRGBO(19, 32, 67, 1),
-          size: 35,
+          color: Color.fromRGBO(3, 21, 37, 1),
+          size: 40,
         ),
-        onPressed: () => setState(() {
-          currentIndex = 2;
-        }),
+        onPressed: (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const CreatePost()
+            )
+          );
+        },
       ),
       bottomNavigationBar: BottomNavigationBar(
         type: BottomNavigationBarType.fixed,
-        backgroundColor: Color.fromRGBO(19, 32, 67, 1),
+        backgroundColor: Color.fromRGBO(3, 21, 37, 1),
         selectedItemColor: Color.fromRGBO(240, 240, 240, 1),
         unselectedItemColor: Color.fromRGBO(240, 240, 240, 1),
         showSelectedLabels: false,
@@ -69,10 +86,6 @@ class _NavigationState extends State<Navigation> {
             icon: Icon(CupertinoIcons.search_circle, size: 35),
             activeIcon: Icon(CupertinoIcons.search_circle_fill, size: 35),
             label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: SizedBox.shrink(), // Empty icon for the center button
-            label: '',
           ),
           BottomNavigationBarItem(
             icon: Icon(CupertinoIcons.bell),

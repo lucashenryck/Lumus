@@ -4,6 +4,7 @@ import 'package:lumus/components/button.dart';
 import 'package:lumus/components/square_tile.dart';
 import 'package:lumus/components/textfield.dart';
 import 'package:lumus/pages/forgot_password_page.dart';
+import 'package:lumus/resources/auth_methods.dart';
 import 'package:lumus/services/auth_service.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,40 +19,25 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-//Text Editing Controllers
-final emailTextController = TextEditingController();
-final passwordTextController = TextEditingController();
+  //Text Editing Controllers
+  final _emailTextController = TextEditingController();
+  final _passwordTextController = TextEditingController();
 
-  //Sign user in method
-  void signUserIn() async{
-    //Show loading circle
-    showDialog(
-      context: context, 
-      builder: (context){
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
-      }
-    );
-
-    //Try sign in
-    try{
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: emailTextController.text, 
-        password: passwordTextController.text,
-      );
-
-      //Pop the loading circle
-      if(context.mounted) Navigator.pop(context);
-    }on FirebaseAuthException catch (e){
-
-      //Pop the loading circle
-      Navigator.pop(context);
-
-      //Show error message
-      showErrorMessage(e.code);
-    }
+  @override
+  void dispose(){
+    super.dispose();
+    _emailTextController.dispose();
+    _passwordTextController.dispose();
   }
+
+  void loginUser() async {
+    String response = await AuthMethods().loginUser(
+      email: _emailTextController.text.trim(), 
+      password: _passwordTextController.text.trim()
+    );
+  }
+
+  
   //Error message to user
   void showErrorMessage(String message){
     showDialog(
@@ -103,7 +89,7 @@ final passwordTextController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(19, 32, 67, 1),
+      backgroundColor: Color.fromRGBO(3, 21, 37, 1),
       body: SafeArea(
         child: Center(
           child: Padding(
@@ -134,20 +120,18 @@ final passwordTextController = TextEditingController();
           
                   //E-mail textfield
                   MyTextField(
-                    controller: emailTextController,
+                    controller: _emailTextController,
                     hintText: 'E-mail',
                     obscureText: false,
-                    isUsername: false,
                   ),
           
                   const SizedBox(height: 15),
           
                   //Password Textfield
                   MyTextField(
-                    controller: passwordTextController, 
+                    controller: _passwordTextController, 
                     hintText: 'Senha', 
                     obscureText: true,
-                    isUsername: false,
                   ),
           
                   const SizedBox(height: 10),
@@ -181,7 +165,7 @@ final passwordTextController = TextEditingController();
                   //Sign in Button
                   MyButton(
                     text: 'Entrar',
-                    onTap: signUserIn, 
+                    onTap: loginUser, 
                   ),
 
                   const SizedBox(height: 20),
