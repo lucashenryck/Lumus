@@ -114,14 +114,10 @@ class _EditProfilePageState extends State<EditProfilePage> {
                       backgroundImage: MemoryImage(_image!),
                     )
                     :
-                    const CircleAvatar(
-                      backgroundColor: Color.fromRGBO(7, 44, 77, 1),
+                    CircleAvatar(
+                      backgroundColor: Color.fromRGBO(240, 240, 240, 1),
+                      backgroundImage: NetworkImage(user.profilePhoto ?? 'https://static.thenounproject.com/png/354384-200.png'),
                       radius: 70,
-                      child: Icon(
-                      Icons.person,
-                      size: 70,
-                      color: Color.fromRGBO(240, 240, 240, 1),
-                      ),
                     ),
                     Positioned(
                       child: IconButton(

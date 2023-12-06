@@ -5,6 +5,7 @@ import 'package:lumus/api/tmdb_api.dart';
 import 'package:lumus/constants.dart';
 import 'package:lumus/models/movie.dart';
 import 'package:lumus/models/series.dart';
+import 'package:lumus/models/user.dart';
 import 'package:lumus/pages/movie_details_page.dart';
 import 'package:lumus/pages/series_details_page.dart';
 
@@ -20,7 +21,8 @@ class _SearchingPageState extends State<SearchingPage>
   late TabController _tabController;
   List<Movie> movieResults = [];
   List<Series> seriesResults = [];
-  final searchController = TextEditingController();
+  List<UserLumus> userResults = [];
+  final TextEditingController searchController = TextEditingController();
 
   @override
   void initState() {
@@ -108,14 +110,20 @@ class _SearchingPageState extends State<SearchingPage>
         children: [
           Expanded(
             child: ListView.builder(
-              itemCount: _tabController.index == 1 ? seriesResults.length : movieResults.length,
+              itemCount: _tabController.index == 1
+              ? seriesResults.length
+              : _tabController.index == 0
+                  ? movieResults.length
+                  : userResults.length,
               itemBuilder: (context, index) {
                 if (_tabController.index == 1) {
                   final series = seriesResults[index];
                   return buildSeriesCard(series);
-                } else {
+                } else if(_tabController.index == 0) {
                   final movie = movieResults[index];
                   return buildMovieCard(movie);
+                } else if (_tabController.index == 2){
+
                 }
               },
             ),
@@ -124,6 +132,10 @@ class _SearchingPageState extends State<SearchingPage>
       ),
     );
   }
+
+  // Widget buildUserResults(UserLumus user){
+    
+  // }
 
   Widget buildMovieCard(Movie movie) {
     DateTime? releaseDate = movie.releaseDate != ""

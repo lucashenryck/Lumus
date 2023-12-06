@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lumus/components/textfield.dart';
 
 class ForgotPasswordPage extends StatefulWidget {
@@ -47,9 +48,9 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(19, 32, 67, 1),
+      backgroundColor: Color.fromRGBO(3, 21, 37, 1),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(19, 32, 67, 1),
+        backgroundColor: Color.fromRGBO(3, 21, 37, 1),
         elevation: 0,
       ),
       body: Column(
@@ -57,9 +58,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
         children: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: const Text(
+            child: Text(
              'Digite seu e-mail que nós enviaremos um link de redefinição de senha!', 
-             style: TextStyle(fontSize: 20, color: Color.fromRGBO(240, 240, 240, 1)),
+              style: GoogleFonts.dmSans(
+                color: Color.fromRGBO(240, 240, 240, 1),
+                fontSize: 17,
+              ),
              textAlign: TextAlign.center,
             ),
           ),
@@ -75,9 +79,13 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
           SizedBox(height: 15),
           MaterialButton(
             onPressed: passwordReset,
-            child: const Text(
+            child: Text(
               'Redefinir senha',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+              style: GoogleFonts.dmSans(
+                color: Color.fromRGBO(3, 21, 37, 1),
+                fontSize: 14,
+                fontWeight: FontWeight.bold
+              ),
             ),
             color: Color.fromRGBO(229, 210, 131, 1),
           ),

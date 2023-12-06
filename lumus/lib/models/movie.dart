@@ -1,6 +1,3 @@
-import 'package:lumus/models/castncrew.dart';
-import 'package:lumus/models/genre.dart';
-
 class Movie {
   int? id;
   String? title;
@@ -16,7 +13,6 @@ class Movie {
   String? status;
   String? originalLanguage;
   List<Genre>? genres;
-  CastAndCrew? director;
 
   Movie({
     required this.id,
@@ -33,12 +29,9 @@ class Movie {
     required this.status,
     required this.originalLanguage,
     required this.genres,
-    this.director
   });
 
   factory Movie.fromJson(Map<String, dynamic> json) {
-    List<dynamic>? genresJson = json['genres'];
-    List<Genre>? genres = genresJson?.map((genreJson) => Genre.fromJson(genreJson)).toList();
     return Movie(
       id: json["id"],
       title: json["title"],
@@ -53,7 +46,23 @@ class Movie {
       tagline: json["tagline"],
       status: json["status"],
       originalLanguage: json["original_language "],
-      genres: genres
+      genres: (json['genres'] as List<dynamic>?)
+          ?.map((item) => Genre.fromJson(item))
+          .toList(),
+    );
+  }  
+}
+
+class Genre{
+  String? name;
+
+  Genre({
+    required this.name
+  });
+
+  factory Genre.fromJson(Map<String, dynamic> json) {
+    return Genre(
+      name: json["name"]
     );
   }  
 }

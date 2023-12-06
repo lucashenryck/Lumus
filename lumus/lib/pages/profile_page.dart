@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lumus/components/follow_button.dart';
@@ -19,8 +20,9 @@ class MyProfile extends StatefulWidget {
 class _MyProfileState extends State<MyProfile> {
   int followers = 0;
   int following = 0;
-  final double profileHeight = 170;
+  final double profileHeight = 125;
   var userData = {};
+  bool isFollowing = false;
 
   void errorAlert(){
     QuickAlert.show(
@@ -47,6 +49,7 @@ class _MyProfileState extends State<MyProfile> {
 
       followers = userSnap.data()!['followers'].length;
       following = userSnap.data()!['following'].length;
+      isFollowing = userSnap.data()!['followers'].contains(FirebaseAuth.instance.currentUser!.uid);
 
       userData = userSnap.data()!;
       setState(() {
@@ -108,14 +111,7 @@ class _MyProfileState extends State<MyProfile> {
         children: [
           Column(
             children: [
-              FollowButton(
-                text: "Editar perfil",
-                backgroundColor: Color.fromRGBO(3, 21, 37, 1),
-                textColor: Color.fromRGBO(240, 240, 240, 1),
-                borderColor: Color.fromRGBO(240, 240, 240, 1),
-                function: (){},
-              ),
-              const SizedBox(height: 8),
+              if (FirebaseAuth.instance.currentUser!.uid == widget.userUid)
               Text(
                 userData['username'],
                 style: GoogleFonts.dmSans(
@@ -124,11 +120,23 @@ class _MyProfileState extends State<MyProfile> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const SizedBox(height: 8),
+              if (FirebaseAuth.instance.currentUser!.uid == widget.userUid)
+              FollowButton(
+                text: isFollowing ? "Seguindo" : "Seguir",
+                backgroundColor: isFollowing ? 
+                const Color.fromRGBO(3, 21, 37, 1) 
+                : const Color.fromRGBO(240, 240, 240, 1),
+                textColor: isFollowing ?
+                Color.fromRGBO(240, 240, 240, 1) : 
+                const Color.fromRGBO(3, 21, 37, 1),
+                borderColor: Color.fromRGBO(240, 240, 240, 1),
+                function: (){},
+              ),
             ],
           ),
         ],
       ),
-      const SizedBox(height: 8),
       NumberWidget(followers: followers, following: following,),
       const SizedBox(height: 8),
       Visibility(
@@ -146,23 +154,24 @@ class _MyProfileState extends State<MyProfile> {
         ),
       ),
       const SizedBox(height: 8),
-      const Divider(color: Color.fromRGBO(240, 240, 240, 1)),
+      const Divider(
+        color: Color.fromRGBO(240, 240, 240, 1),
+        height: 1,
+      ),
       const MyTabFilterProfileContentBar()
     ],
   );
 
   Widget buildProfileImage() => CircleAvatar(
-    radius: profileHeight/2,
-    backgroundColor: Color.fromRGBO(7, 44, 77, 1),
-    backgroundImage: userData['profile_photo'] != null
-        ? NetworkImage(userData['profile_photo'])
-        : null, // Set to null if profile photo is null
-    child: userData['profile_photo'] == null
-        ? Icon(
-            Icons.person, // You can replace this with your desired icon
-            size: 90, // Set the size according to your needs
-            color: Color.fromRGBO(240, 240, 240, 1),
-          )
-        : null, // Set to null if profile photo is not null
-  );
+  radius: profileHeight / 2,
+  backgroundColor: Color.fromRGBO(240, 240, 240, 1),
+  child: ClipOval(
+    child: Image.network(
+      userData['profile_photo'] ?? "https://static.thenounproject.com/png/354384-200.png",
+      fit: BoxFit.cover, 
+      width: profileHeight,
+      height: profileHeight,
+    ),
+  ),
+);
 }

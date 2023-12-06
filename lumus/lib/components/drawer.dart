@@ -69,20 +69,6 @@ class _MyDrawerState extends State<MyDrawer> {
                   text: 'Watchlist', 
                   onTap: () => Navigator.pop(context),
                 ),
-    
-                //Activity
-                MyListTile(
-                  icon: Icons.timeline, 
-                  text: 'Atividade', 
-                  onTap: () => Navigator.pop(context),
-                ),
-    
-                //Settings
-                MyListTile(
-                  icon: Icons.settings, 
-                  text: 'Configurações', 
-                  onTap: () => Navigator.pop(context),
-                ),
               ],
             ),
     

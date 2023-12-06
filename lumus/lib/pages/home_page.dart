@@ -20,7 +20,7 @@ class _HomePageState extends State<HomePage> {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        backgroundColor: Color.fromRGBO(1, 17, 31, 1),
+        backgroundColor: Color.fromRGBO(3, 21, 37, 1),
         appBar: HomeAppBar.appBar(),
         drawer: const MyDrawer(),
         body: Column(

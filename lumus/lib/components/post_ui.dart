@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:lumus/components/like_button.dart';
+import 'package:lumus/resources/firestore_methods.dart';
 
 class PostUI extends StatefulWidget {
   final DocumentSnapshot post;
@@ -20,10 +22,27 @@ class PostUI extends StatefulWidget {
 class _PostUIState extends State<PostUI> {
   late Map<String, dynamic> post;
 
+  final currentUser = FirebaseAuth.instance.currentUser;
+  bool isLiked = false;
+
   @override
   void initState() {
     super.initState();
     post = widget.post.data() as Map<String, dynamic>;
+    isLiked = post['likes'].contains(currentUser!.uid);
+  }
+
+  void toggleLike() async{
+    final currentUserUid = currentUser!.uid;
+    final postId = post['post_id'];
+    setState(() {
+      isLiked = !isLiked;
+    });
+    try {
+      await FirestoreMethods().likePost(postId, currentUserUid, post['likes']);
+    } catch (e) {
+      print("Error updating likes: $e");
+    }
   }
 
   @override
@@ -31,12 +50,11 @@ class _PostUIState extends State<PostUI> {
     final timePublished = post['time_published'] as Timestamp;
     final dateTime = timePublished.toDate();
     final formattedDate = DateFormat('dd/MM/yyyy  HH:mm').format(dateTime);
-    
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 7),
+      padding: const EdgeInsets.symmetric(vertical: 8),
       child: Material(
-        elevation: 60 ,
+        elevation: 60,
         child: Container(
           decoration: BoxDecoration(
             color: Color.fromRGBO(3, 21, 37, 1),
@@ -46,45 +64,48 @@ class _PostUIState extends State<PostUI> {
               Row(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+                    padding: const EdgeInsets.only(top: 5, left: 5, right: 7),
                     child: CircleAvatar(
-                      backgroundImage: post['profile_photo'],
-                      radius: 15,
+                      backgroundColor: Color.fromRGBO(240, 240, 240, 1),
+                      backgroundImage: NetworkImage(post['profile_photo'] ?? 'https://static.thenounproject.com/png/354384-200.png'),
+                      radius: 20,
                     ),
                   ),
-                  Text(
-                    post['username'],
-                      style: GoogleFonts.dmSans(
-                      color: Color.fromRGBO(229, 210, 131, 1),
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold,
+                  Padding(
+                    padding: const EdgeInsets.only(top: 5),
+                    child: Text(
+                      post['username'],
+                        style: GoogleFonts.dmSans(
+                        color: Color.fromRGBO(240, 240, 240, 1),
+                        fontSize: 17,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   )
                 ],
               ),
               if (post['title_and_year'] != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                child: Align(
-                  alignment: Alignment.center,
-                  child: TextButton(
-                    onPressed:() {},
+              const SizedBox(height: 5),
+              if (post['title_and_year'] != null)
+              Align(
+                alignment: Alignment.center,
+                child: GestureDetector(
+                  onTap: (){},
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 20, left: 20),
                     child: Text(
                       post['title_and_year'],
                       style: GoogleFonts.dmSans(
-                        color: Color.fromRGBO(240, 240, 240, 1),
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
+                        color: Color.fromRGBO(229, 210, 131, 1),
+                        fontSize: 13,
+                        fontWeight: FontWeight.w300,
                       ),
-                    ),
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all<Color>(Color.fromRGBO(98, 119, 138, 1)),
                     ),
                   ),
                 ),
               ),
-              if (post['title_and_year'] != null)
-              const SizedBox(height: 5),
+              if (post['rating'] != null)
+              const SizedBox(height: 10),
               if (post['rating'] != null)
               RatingBar.builder(
                 initialRating: post['rating'].toDouble(),
@@ -103,7 +124,7 @@ class _PostUIState extends State<PostUI> {
                 ignoreGestures: true, 
                 onRatingUpdate: (double value) {},
               ),
-              if (post['rating'] != null)
+              if (post['content'] != null)
               const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -142,21 +163,17 @@ class _PostUIState extends State<PostUI> {
                       ),
                       Row(
                         children: [
-                          IconButton(
-                            onPressed: (){}, 
-                            icon: Icon(
-                              Iconsax.heart5,
-                              color: Colors.redAccent,
-                              size: 23,
-                            )
+                          LikeButton(
+                            isLiked: isLiked, 
+                            onTap: toggleLike
                           ),
                           Padding(
-                            padding: const EdgeInsets.only(top: 5, right: 12),
+                            padding: const EdgeInsets.symmetric(horizontal: 12),
                             child: Text(
                               post['likes'].length.toString(),
                               style: GoogleFonts.dmSans(
-                                color: Colors.redAccent,
-                                fontSize: 12,
+                                color: isLiked ? Colors.redAccent : Color.fromRGBO(240, 240, 240, 1),
+                                fontSize: 17,
                                 fontWeight: FontWeight.w600,
                               ),
                             ),

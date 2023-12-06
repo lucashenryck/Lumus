@@ -7,15 +7,17 @@ class MyTabFilterProfileContentBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 6, 
+      length: 2, 
       child: TabBar(
         onTap: (selectedTabIndex) {},
         isScrollable: true,
+        indicatorSize: TabBarIndicatorSize.label,
+        labelPadding: EdgeInsets.symmetric(horizontal: 32),
         indicatorColor: Color.fromRGBO(240, 240, 240, 1),
         tabs: [
           Tab(
             child: Text(
-              "Favoritos",
+              "Publicações",
               style: GoogleFonts.dmSans(
                 fontSize: 17,
                 fontWeight: FontWeight.bold
@@ -24,43 +26,7 @@ class MyTabFilterProfileContentBar extends StatelessWidget {
           ),
           Tab(
             child: Text(
-              "Posts",
-              style: GoogleFonts.dmSans(
-                fontSize: 17,
-                fontWeight: FontWeight.bold
-              ),
-            ),
-          ),
-          Tab(
-            child: Text(
-              "Reviews",
-              style: GoogleFonts.dmSans(
-                fontSize: 17,
-                fontWeight: FontWeight.bold
-              ),
-            ),
-          ),
-          Tab(
-            child: Text(
-              "Assistidos",
-              style: GoogleFonts.dmSans(
-                fontSize: 17,
-                fontWeight: FontWeight.bold
-              ),
-            ),
-          ),
-          Tab(
-            child: Text(
-              "Curtidos",
-              style: GoogleFonts.dmSans(
-                fontSize: 17,
-                fontWeight: FontWeight.bold
-              ),
-            ),
-          ),
-          Tab(
-            child: Text(
-              "Listas",
+              "Avaliações",
               style: GoogleFonts.dmSans(
                 fontSize: 17,
                 fontWeight: FontWeight.bold

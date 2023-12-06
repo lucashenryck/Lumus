@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class MyButton extends StatelessWidget {
   final Function()? onTap;
@@ -16,7 +17,7 @@ class MyButton extends StatelessWidget {
       child: SizedBox(
         width: 150,
         child: Container(
-          padding: const EdgeInsets.all(25),
+          padding: const EdgeInsets.all(15),
           decoration: BoxDecoration(
             color: Color.fromRGBO(240, 240, 240, 1),
             borderRadius: BorderRadius.circular(8),
@@ -24,10 +25,10 @@ class MyButton extends StatelessWidget {
           child: Center(
             child: Text(
               text, 
-              style: TextStyle(
-                color: Colors.black,
+              style: GoogleFonts.dmSans(
+                color: Color.fromRGBO(3, 21, 37, 1),
+                fontSize: 15,
                 fontWeight: FontWeight.bold,
-                fontSize: 16,
               ),
             )
           ),

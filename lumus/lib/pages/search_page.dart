@@ -83,17 +83,6 @@ class _SearchPageState extends State<SearchPage> {
             },
           ),
         ),
-        actions: [
-          Transform(
-            alignment: Alignment.center,
-            transform: Matrix4.rotationY(3.141),
-            child: IconButton(
-              onPressed: (){}, 
-              icon: Icon(CupertinoIcons.ellipses_bubble),
-              selectedIcon: Icon(CupertinoIcons.ellipses_bubble_fill),
-            ),
-          )
-        ],
       ),
       body: SingleChildScrollView(
         physics: const BouncingScrollPhysics(),

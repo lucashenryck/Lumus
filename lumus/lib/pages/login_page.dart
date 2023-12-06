@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lumus/components/button.dart';
 import 'package:lumus/components/square_tile.dart';
 import 'package:lumus/components/textfield.dart';
@@ -98,21 +99,13 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  //logo
-                  Image.asset(
-                    'images/fontbolt.png',
-                    width: 275,
-                  ),
-          
-                  const SizedBox(height: 25),
-          
                   //Welcome Back message
-                  const Text(
-                    "Que bom te ver de novo!",
-                    style: TextStyle(
-                      color: Color.fromRGBO(240, 240, 240, 1), 
-                      fontSize: 17,
-                      fontWeight: FontWeight.bold
+                  Text(
+                    "QUE BOM TE VER DE NOVO!",
+                    style: GoogleFonts.dmSans(
+                      color: Color.fromRGBO(229, 210, 131, 1),
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
           
@@ -151,9 +144,10 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         child: Text(
                           'Esqueceu sua senha?',
-                          style: TextStyle(
-                            fontSize: 15,
+                          style: GoogleFonts.dmSans(
                             color: Color.fromRGBO(229, 210, 131, 1),
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
@@ -164,7 +158,7 @@ class _LoginPageState extends State<LoginPage> {
           
                   //Sign in Button
                   MyButton(
-                    text: 'Entrar',
+                    text: 'ENTRAR',
                     onTap: loginUser, 
                   ),
 
@@ -183,9 +177,9 @@ class _LoginPageState extends State<LoginPage> {
                         padding: const EdgeInsets.all(8.0),
                         child: Text(
                           "Entrar como visitante",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                          style: GoogleFonts.dmSans(
                             color: Color.fromRGBO(229, 210, 131, 1),
+                            fontSize: 12,
                           ),
                         ),
                       ),
@@ -203,23 +197,23 @@ class _LoginPageState extends State<LoginPage> {
                         Expanded(
                           child: Divider(
                             thickness: 0.5,
-                            color: Colors.white,
+                            color: Color.fromRGBO(240, 240, 240, 1),
                           ),
                         ),
                         Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: Text(
                             'Entrar com',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                              style: GoogleFonts.dmSans(
+                              color: Color.fromRGBO(240, 240, 240, 1),
+                              fontSize: 14,
                             ),
                           ),
                         ),
                         Expanded(
                           child: Divider(
                             thickness: 0.5,
-                            color: Colors.white,
+                            color: Color.fromRGBO(240, 240, 240, 1),
                           )
                         )
                       ],
@@ -246,8 +240,9 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       Text(
                         "Ainda não é membro?",
-                        style: TextStyle(
+                        style: GoogleFonts.dmSans(
                           color: Color.fromRGBO(240, 240, 240, 1),
+                          fontSize: 14,
                         ),
                       ),
                       const SizedBox(width: 5),
@@ -255,9 +250,10 @@ class _LoginPageState extends State<LoginPage> {
                         onTap: widget.onTap,
                         child:Text(
                           "Crie uma conta",
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
+                          style: GoogleFonts.dmSans(
                             color: Color.fromRGBO(229, 210, 131, 1),
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold
                           ),
                         ),
                       ),

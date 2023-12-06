@@ -3,12 +3,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
+import 'package:ionicons/ionicons.dart';
 import 'package:lumus/api/tmdb_api.dart';
 import 'package:lumus/constants.dart';
 import 'package:lumus/models/castncrew.dart';
 import 'package:lumus/models/episode.dart';
 import 'package:lumus/models/series.dart';
+import 'package:lumus/models/user.dart';
 import 'package:lumus/pages/searching%20for%20create/searching_page_for_review.dart';
+import 'package:lumus/providers/user_provider.dart';
+import 'package:lumus/resources/firestore_methods.dart';
+import 'package:provider/provider.dart';
 
 class SeriesDetailsPage extends StatefulWidget {
   const SeriesDetailsPage({
@@ -36,15 +41,30 @@ class _SeriesDetailsPageState extends State<SeriesDetailsPage> {
     episodes = Future.value([]);
   }
 
+  void addToFavorites(
+    String userId,
+    int seriesId,
+    String? posterPath 
+  ) async {
+    try{
+      await FirestoreMethods().addToLiked(
+        userId, 
+        seriesId, 
+        posterPath
+      );
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final UserLumus user = Provider.of<UserProvider>(context).getUserLumus;
     Size size = MediaQuery.of(context).size;
 
     DateTime? releaseDate = widget.series.firstAirDate != ""
         ? DateTime.parse(widget.series.firstAirDate!)
         : null;
-
-    // Format the release date to get only the year
     String releaseYear = releaseDate != null
         ? '(${DateFormat('yyyy').format(releaseDate)})'
         : '(N/A)';
@@ -61,37 +81,42 @@ class _SeriesDetailsPageState extends State<SeriesDetailsPage> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: Text(
                     seriesInfo,
                     style: GoogleFonts.dmSans(
                       color: Colors.amber,
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
                 Divider(
                   color: Color.fromRGBO(240, 240, 240, 1),
+                  height: 2,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     IconButton(
-                      onPressed: (){}, 
-                      icon: Icon(Icons.favorite_outline_sharp),
+                      onPressed: () => addToFavorites(
+                        user.id, 
+                        widget.series.id!, 
+                        widget.series.posterPath
+                      ), 
+                      icon: Icon(Ionicons.heart_outline),
                       color: Color.fromRGBO(240, 240, 240, 1),
                       iconSize: 50,
                     ),
                     IconButton(
                       onPressed: (){}, 
-                      icon: Icon(CupertinoIcons.eye),
+                      icon: Icon(Ionicons.eye_off),
                       color: Color.fromRGBO(240, 240, 240, 1),
                       iconSize: 60
                     ),
                     IconButton(
                       onPressed: (){}, 
-                      icon: Icon(CupertinoIcons.stopwatch),
+                      icon: Icon(Ionicons.time_outline),
                       color: Color.fromRGBO(240, 240, 240, 1),
                       iconSize: 50
                     ),
@@ -232,7 +257,9 @@ class _SeriesDetailsPageState extends State<SeriesDetailsPage> {
                   style: GoogleFonts.dmSans(
                       color: Color.fromRGBO(240, 240, 240, 1),
                       fontSize: 18,
-                      fontStyle: FontStyle.italic),
+                      fontStyle: FontStyle.italic,
+                      fontWeight: FontWeight.w300
+                    ),
                 ),
               ),
               const SizedBox(height: 8),
@@ -242,12 +269,13 @@ class _SeriesDetailsPageState extends State<SeriesDetailsPage> {
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                   child: Text(
                     widget.series.createdBy!
-                        .map((creator) => creator.name ?? "Não informado")
+                        .map((creator) => creator.name ?? "N/A")
                         .join(', '),
                     style: GoogleFonts.dmSans(
                         color: Color.fromRGBO(240, 240, 240, 1),
                         fontSize: 18,
-                        fontWeight: FontWeight.w700),
+                        fontWeight: FontWeight.w700
+                      ),
                   ),
                 ),
                 Divider(
@@ -271,8 +299,9 @@ class _SeriesDetailsPageState extends State<SeriesDetailsPage> {
                         children: [
                           Text(
                             genre.name ?? 'Não informado',
-                            style: TextStyle(
+                            style: GoogleFonts.dmSans(
                               color: Color.fromRGBO(229, 210, 131, 1),
+                              fontWeight: FontWeight.w500
                             ),
                           ),
                           const SizedBox(width: 10),
@@ -482,7 +511,7 @@ class _SeriesDetailsPageState extends State<SeriesDetailsPage> {
                         'Elenco',
                         style: GoogleFonts.dmSans(
                           color: Colors.amber,
-                          fontSize: 22,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -514,7 +543,7 @@ class _SeriesDetailsPageState extends State<SeriesDetailsPage> {
                         'Equipe técnica',
                         style: GoogleFonts.dmSans(
                           color: Colors.amber,
-                          fontSize: 22,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -541,7 +570,7 @@ class _SeriesDetailsPageState extends State<SeriesDetailsPage> {
                 Column(
                   children: [
                     Text(
-                      "REVIEWS",
+                      "Avaliações",
                       style: GoogleFonts.dmSans(
                         color: Colors.amber,
                         fontSize: 20,
@@ -574,7 +603,16 @@ class CastCard extends StatelessWidget {
             height: 100,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(10),
-              image: actor.profilePath != null ? DecorationImage(image: NetworkImage('${Constants.imagePath}${actor.profilePath}'), fit: BoxFit.cover) : null,
+              image: actor.profilePath != null ? 
+              DecorationImage(
+                image: NetworkImage('${Constants.imagePath}${actor.profilePath}'), 
+                fit: BoxFit.cover
+              ) 
+              : 
+              const DecorationImage(
+                image: NetworkImage('https://static.thenounproject.com/png/354384-200.png'), // Replace with your fallback image URL
+                fit: BoxFit.cover,
+              ),
               color: actor.profilePath != null ? null : const  Color.fromRGBO(240, 240, 240, 1),
             ),
           ),
