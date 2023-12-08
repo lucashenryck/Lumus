@@ -24,59 +24,66 @@ class TrendingSeries extends StatelessWidget {
           final series = snapshot.data[itemIndex];
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-              onTap: () async {
-                try{
-                  final seriesDetails = await TmdbApi().getSeriesDetails(series.id);
-                  final cast = await TmdbApi().getCastFromSeries(series.id);
-                  final crew = await TmdbApi().getCrewFromSeries(series.id);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => SeriesDetailsPage(
-                        series: seriesDetails,
-                        cast: cast,
-                        crew: crew,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.white,
+                  width: 0.25, 
+                ),
+              ),
+              child: GestureDetector(
+                onTap: () async {
+                  try{
+                    final seriesDetails = await TmdbApi().getSeriesDetails(series.id);
+                    final cast = await TmdbApi().getCastFromSeries(series.id);
+                    final crew = await TmdbApi().getCrewFromSeries(series.id);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SeriesDetailsPage(
+                          series: seriesDetails,
+                        ),
+                      ),
+                    );
+                  }catch (e){
+                    print('Erro ao obter detalhes da série: $e');
+                  }
+                },
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: SizedBox(
+                        height: 225,
+                        width: 140,
+                        child: Image.network(
+                          filterQuality: FilterQuality.high,
+                          fit: BoxFit.cover,
+                          '${Constants.imagePath}${snapshot.data[itemIndex].posterPath}'
+                        )
                       ),
                     ),
-                  );
-                }catch (e){
-                  print('Erro ao obter detalhes da série: $e');
-                }
-              },
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: SizedBox(
-                      height: 225,
-                      width: 140,
-                      child: Image.network(
-                        filterQuality: FilterQuality.high,
-                        fit: BoxFit.cover,
-                        '${Constants.imagePath}${snapshot.data[itemIndex].posterPath}'
-                      )
-                    ),
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${itemIndex + 1}',
-                        style: const TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${itemIndex + 1}',
+                          style: const TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          )
                         )
                       )
                     )
-                  )
-                ],
+                  ],
+                ),
               ),
             ),
           );

@@ -44,6 +44,7 @@ class _NumberWidgetState extends State<NumberWidget> {
                 text,
                 style: GoogleFonts.dmSans(
                   color: Color.fromRGBO(240, 240, 240, 1),
+                  fontWeight: FontWeight.w300,
                   fontSize: 15,
                 ),
               ),

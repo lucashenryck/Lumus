@@ -99,6 +99,11 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  Image.asset(
+                    'images/fontbolt.png',
+                    width: 175,
+                  ),
+                  const SizedBox(height: 15),
                   //Welcome Back message
                   Text(
                     "QUE BOM TE VER DE NOVO!",

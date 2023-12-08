@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +8,7 @@ import 'package:lumus/models/movie.dart';
 import 'package:lumus/models/series.dart';
 import 'package:lumus/models/user.dart';
 import 'package:lumus/pages/movie_details_page.dart';
+import 'package:lumus/pages/profile_page.dart';
 import 'package:lumus/pages/series_details_page.dart';
 
 class SearchingPage extends StatefulWidget {
@@ -122,8 +124,9 @@ class _SearchingPageState extends State<SearchingPage>
                 } else if(_tabController.index == 0) {
                   final movie = movieResults[index];
                   return buildMovieCard(movie);
-                } else if (_tabController.index == 2){
-
+                } else if (_tabController.index == 2) {
+                  final user = userResults[index];
+                  return buildUserCard(user);
                 }
               },
             ),
@@ -151,16 +154,12 @@ class _SearchingPageState extends State<SearchingPage>
     return GestureDetector(
       onTap: () async {
       try{
-        final cast = await TmdbApi().getCast(movie.id!);
-        final crew = await TmdbApi().getCrew(movie.id!);
         final movieDetails = await TmdbApi().getMovieDetails(movie.id!);
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) => MovieDetailsPage(
               movie: movieDetails,
-              cast: cast,
-              crew: crew,
             ),
           ),
         );
@@ -238,16 +237,12 @@ class _SearchingPageState extends State<SearchingPage>
     return GestureDetector(
       onTap: () async {
         try{
-          final cast = await TmdbApi().getCastFromSeries(series.id!);
-          final crew = await TmdbApi().getCrewFromSeries(series.id!);
           final seriesDetails = await TmdbApi().getSeriesDetails(series.id!);
           Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => SeriesDetailsPage(
                 series: seriesDetails,
-                cast: cast,
-                crew: crew,
               ),
             ),
           );
@@ -303,33 +298,83 @@ class _SearchingPageState extends State<SearchingPage>
     );
   }
 
-  Future<void> onSearchTextChanged(String query) async {
-  if (query.isEmpty) {
-    setState(() {
-      movieResults.clear();
-      seriesResults.clear();
-    });
-    return;
+  Widget buildUserCard(UserLumus user) {
+    return InkWell(
+      onTap: () => Navigator.of(context).push(MaterialPageRoute(builder: (context) => MyProfile(userUid: user.id))),
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Color.fromRGBO(240, 240, 240, 1),
+          backgroundImage: NetworkImage(user.profilePhoto ?? "https://static.thenounproject.com/png/354384-200.png"),
+        ),
+        title: Text(
+          user.username ?? "Não informado",
+          style: GoogleFonts.dmSans(
+            color: Color.fromRGBO(240, 240, 240, 1),
+            fontSize: 17,
+            fontWeight: FontWeight.w400,
+          ),
+        ),
+      ),
+    );
   }
 
-  try {
-    if (_tabController.index == 0) {
-      final movieResults = await TmdbApi().searchMovie(query);
+  Future<void> onSearchTextChanged(String query) async {
+    if (query.isEmpty) {
       setState(() {
-        this.movieResults = movieResults;
-        seriesResults.clear();
-      });
-    } else if (_tabController.index == 1) {
-      final seriesResults = await TmdbApi().searchSeries(query);
-      setState(() {
-        this.seriesResults = seriesResults;
         movieResults.clear();
+        seriesResults.clear();
+        userResults.clear();
       });
-    } else {
-      // Handle user search (if needed)
+      return;
     }
-  } catch (e) {
-    print('Error searching: $e');
+
+    try {
+      if (_tabController.index == 0) {
+        final movieResults = await TmdbApi().searchMovie(query);
+        setState(() {
+          this.movieResults = movieResults;
+          seriesResults.clear();
+        });
+      } else if (_tabController.index == 1) {
+        final seriesResults = await TmdbApi().searchSeries(query);
+        setState(() {
+          this.seriesResults = seriesResults;
+          movieResults.clear();
+        });
+      } else if (_tabController.index == 2) {
+          final userResults = await searchUsers(query);
+          setState(() {
+            this.userResults = userResults;
+            movieResults.clear();
+            seriesResults.clear();
+          });
+        }
+    } catch (e) {
+      print('Error searching: $e');
+    }
   }
-}
+
+  Future<List<UserLumus>> searchUsers(String query) async {
+    try {
+      // Access the 'Users' collection in Firestore
+      CollectionReference usersCollection = FirebaseFirestore.instance.collection('Users');
+
+      // Query for users whose username contains the search query
+      QuerySnapshot querySnapshot = await usersCollection
+          .where('username', isGreaterThanOrEqualTo: query)
+          .where('username', isLessThan: query + 'z')  // Adjust for case-insensitive search
+          .limit(10)  // Limit the number of results for better performance
+          .get();
+
+      // Convert the query results to a list of UserLumus objects
+      List<UserLumus> users = querySnapshot.docs.map((DocumentSnapshot document) {
+        return UserLumus.fromMap(document.data() as Map<String, dynamic>);
+      }).toList();
+
+      return users;
+    } catch (e) {
+      print('Error searching users: $e');
+      return [];
+    }
+  }
 }

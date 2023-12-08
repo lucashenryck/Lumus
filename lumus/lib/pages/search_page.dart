@@ -1,11 +1,8 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lumus/api/tmdb_api.dart';
 import 'package:lumus/pages/searching_page.dart';
-import 'package:lumus/search_content/list_movies.dart';
 import 'package:lumus/search_content/trending_movies.dart';
-import 'package:lumus/components/drawer.dart';
 import 'package:lumus/models/movie.dart';
 import 'package:lumus/models/series.dart';
 import 'package:lumus/search_content/trending_series.dart';
@@ -67,7 +64,7 @@ class _SearchPageState extends State<SearchPage> {
               hintText: 'Pesquisar',
               hintStyle: GoogleFonts.dmSans(
                 color: Color.fromRGBO(240, 240, 240, 1), 
-                fontSize: 18, 
+                fontSize: 16, 
                 fontWeight: FontWeight.bold
               ),
               suffixIcon: Icon(
@@ -94,8 +91,8 @@ class _SearchPageState extends State<SearchPage> {
               child: Text(
                 'Top 10 filmes da semana', 
                 style: GoogleFonts.dmSans(
-                  fontSize: 20, 
-                  fontWeight: FontWeight.bold, 
+                  fontSize: 17, 
+                  fontWeight: FontWeight.w500, 
                   color: Color.fromRGBO(240, 240, 240, 1)
                 ),
               ),
@@ -121,8 +118,8 @@ class _SearchPageState extends State<SearchPage> {
               child: Text(
                 'Top 10 séries da semana', 
                 style: GoogleFonts.dmSans(
-                  fontSize: 20, 
-                  fontWeight: FontWeight.bold, 
+                  fontSize: 17, 
+                  fontWeight: FontWeight.w500, 
                   color: Color.fromRGBO(240, 240, 240, 1)
                 ),
               ),
@@ -143,34 +140,9 @@ class _SearchPageState extends State<SearchPage> {
                 },
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(17),
-              child: Text(
-                'Novidades dos amigos',
-                style: GoogleFonts.dmSans(
-                    fontSize: 20, 
-                    fontWeight: FontWeight.bold, 
-                    color: Color.fromRGBO(240, 240, 240, 1)
-                ),
-              ),
-            ),
-            const ListMoviesSlider(),
-            Padding(
-              padding: const EdgeInsets.all(17),
-              child: Text(
-                'Recomendações dos amigos',
-                style: GoogleFonts.dmSans(
-                    fontSize: 20, 
-                    fontWeight: FontWeight.bold, 
-                    color: Color.fromRGBO(240, 240, 240, 1)
-                ),
-              ),
-            ),
-            const ListMoviesSlider(),
           ],
         ),
       ),
-      drawer: const MyDrawer(),
     );
   }
 }

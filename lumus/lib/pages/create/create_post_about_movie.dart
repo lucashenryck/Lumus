@@ -83,7 +83,7 @@ class _CreatePostAboutMovieState extends State<CreatePostAboutMovie> {
   Widget build(BuildContext context) {
     final UserLumus user = Provider.of<UserProvider>(context).getUserLumus;
     return Scaffold(
-      backgroundColor: Color.fromRGBO(5, 39, 68, 1),
+      backgroundColor: Color.fromRGBO(3, 21, 37, 1),
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(
@@ -172,7 +172,7 @@ class _CreatePostAboutMovieState extends State<CreatePostAboutMovie> {
                   ),
                 ),
                 decoration: InputDecoration(
-                  hintText: 'O que você achou do filme?',
+                  hintText: 'O que você tem a falar sobre esse filme?',
                   hintStyle: GoogleFonts.dmSans(
                     color: Color.fromRGBO(240, 240, 240, 1),
                     textStyle: TextStyle(

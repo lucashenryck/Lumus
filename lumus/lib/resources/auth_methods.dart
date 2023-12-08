@@ -95,7 +95,7 @@ class AuthMethods {
         }
         if (file != null) {
           String profilePhotoUrl = await StorageMethods().uploadImageToStorage('profile_photo', file);
-          updateData['profile_photo_url'] = profilePhotoUrl;
+          updateData['profile_photo'] = profilePhotoUrl;
         }
         await _firestore.collection('Users').doc(_auth.currentUser!.uid).update(updateData);
 

@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:lumus/components/app_bar_home.dart';
-import 'package:lumus/components/drawer.dart';
 import 'package:lumus/components/post_ui.dart';
 
 class HomePage extends StatefulWidget {
@@ -13,18 +13,17 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final currentUser = FirebaseAuth.instance.currentUser!;
-  
   @override
   Widget build(BuildContext context) {
+    final User? currentUser = FirebaseAuth.instance.currentUser!;
     return DefaultTabController(
       length: 2,
       child: Scaffold(
         backgroundColor: Color.fromRGBO(3, 21, 37, 1),
         appBar: HomeAppBar.appBar(),
-        drawer: const MyDrawer(),
         body: Column(
           children: [
+            const SizedBox(height: 5),
             Expanded(
               child: StreamBuilder(
                 stream: FirebaseFirestore.instance
@@ -39,6 +38,21 @@ class _HomePageState extends State<HomePage> {
                   if (snapshot.hasError) {
                     return Center(
                       child: Text('Erro: ' + snapshot.error.toString()),
+                    );
+                  }
+                  if (currentUser == null || currentUser.isAnonymous) {
+                    // User is anonymous, show a message
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text(
+                          'Você está logado como anônimo. Nada aqui para mostrar.',
+                          style: GoogleFonts.dmSans(
+                            color: Color.fromRGBO(240, 240, 240, 1),
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
                     );
                   }
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {

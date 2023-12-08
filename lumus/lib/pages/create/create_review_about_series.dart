@@ -86,7 +86,7 @@ class _CreateReviewAboutSeriesState extends State<CreateReviewAboutSeries> {
   Widget build(BuildContext context) {
     final UserLumus user = Provider.of<UserProvider>(context).getUserLumus;
     return Scaffold(
-      backgroundColor: Color.fromRGBO(5, 39, 68, 1),
+      backgroundColor: Color.fromRGBO(3, 21, 37, 1),
       appBar: AppBar(
         leading: IconButton(
           icon: Icon(
@@ -148,47 +148,34 @@ class _CreateReviewAboutSeriesState extends State<CreateReviewAboutSeries> {
                 ],
               ),
             ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                SizedBox(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Color.fromRGBO(240, 240, 240, 1))
-                    ),
-                    child: Center(
-                      child: widget.series?.posterPath != null
-                          ? Image.network(
-                              '${Constants.imagePath}${widget.series!.posterPath}',
-                              width: 120,
-                              height: 180,
-                              fit: BoxFit.fill,
-                            )
-                          : Container(
-                              width: 120,
-                              height: 180,
-                              color: Colors.grey,
-                            ),
-                    ),
-                  ),
+            SizedBox(
+              height: 180,
+              width: 120,
+              child: Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Color.fromRGBO(240, 240, 240, 1))
                 ),
-                Column(
-                  children: [
-                    IconButton(
-                      onPressed: (){}, 
-                      icon: Icon(Icons.favorite_outline),
-                      iconSize: 60,
-                      color: Color.fromRGBO(3, 21, 37, 1),
-                    ),
-                  ],
-                )
-              ],
+                child: Center(
+                  child: widget.series?.posterPath != null
+                      ? Image.network(
+                          '${Constants.imagePath}${widget.series!.posterPath}',
+                          width: 120,
+                          height: 180,
+                          fit: BoxFit.fill,
+                        )
+                      : Container(
+                          width: 120,
+                          height: 180,
+                          color: Colors.grey,
+                        ),
+                ),
+              ),
             ),
             const SizedBox(height: 30),
             RatingBar.builder(
               initialRating: rating,
               minRating: 0,
-              unratedColor: Color.fromRGBO(3, 21, 37, 1),
+              unratedColor: Color.fromARGB(255, 80, 79, 79),
               glowRadius: 5,
               glowColor: Colors.yellow,
               direction: Axis.horizontal,
@@ -220,7 +207,7 @@ class _CreateReviewAboutSeriesState extends State<CreateReviewAboutSeries> {
                   ),
                 ),
                 decoration: InputDecoration(
-                  hintText: 'O que você achou do filme?',
+                  hintText: 'O que você achou dessa série?',
                   hintStyle: GoogleFonts.dmSans(
                     color: Color.fromRGBO(240, 240, 240, 1),
                     textStyle: TextStyle(

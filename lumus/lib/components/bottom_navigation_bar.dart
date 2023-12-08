@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lumus/pages/create/create_post.dart';
 import 'package:lumus/pages/home_page.dart';
-import 'package:lumus/pages/notifications.dart';
 import 'package:lumus/pages/profile_page.dart';
 import 'package:lumus/pages/search_page.dart';
 import 'package:lumus/providers/user_provider.dart';
@@ -33,7 +32,7 @@ class _NavigationState extends State<Navigation> {
   final List<Widget> telas = [
     const HomePage(),
     const SearchPage(),
-    const NotificationsPage(),
+    const CreatePost(),
     MyProfile(userUid: FirebaseAuth.instance.currentUser!.uid)
   ];
 
@@ -44,60 +43,52 @@ class _NavigationState extends State<Navigation> {
         index: currentIndex,
         children: telas,
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: Color.fromRGBO(240, 240, 240, 1),
-        hoverElevation: 10,
-        elevation: 30,
-        child: const Icon(
-          CupertinoIcons.add,
-          color: Color.fromRGBO(3, 21, 37, 1),
-          size: 40,
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(
+            top: BorderSide(
+              color: Colors.grey, // Change the color of the border
+              width: 0.15, // Adjust the width of the border
+            ),
+          ),
         ),
-        onPressed: (){
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => const CreatePost()
-            )
-          );
-        },
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: Color.fromRGBO(3, 21, 37, 1),
-        selectedItemColor: Color.fromRGBO(240, 240, 240, 1),
-        unselectedItemColor: Color.fromRGBO(240, 240, 240, 1),
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        iconSize: 30,
-        currentIndex: currentIndex,
-        onTap: (index) {
-          setState(() {
-            currentIndex = index;
-          });
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.house),
-            activeIcon: Icon(CupertinoIcons.house_fill),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.search_circle, size: 35),
-            activeIcon: Icon(CupertinoIcons.search_circle_fill, size: 35),
-            label: 'Search',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.bell),
-            activeIcon: Icon(CupertinoIcons.bell_fill),
-            label: 'Notifications',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(CupertinoIcons.person),
-            activeIcon: Icon(CupertinoIcons.person_fill),
-            label: 'Profile',
-          ),
-        ],
+        child: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          backgroundColor: Color.fromRGBO(3, 21, 37, 1),
+          selectedItemColor: Color.fromRGBO(240, 240, 240, 1),
+          unselectedItemColor: Color.fromRGBO(240, 240, 240, 1),
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          iconSize: 30,
+          currentIndex: currentIndex,
+          onTap: (index) {
+            setState(() {
+              currentIndex = index;
+            });
+          },
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.house),
+              activeIcon: Icon(CupertinoIcons.house_fill),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.search_circle),
+              activeIcon: Icon(CupertinoIcons.search_circle_fill),
+              label: 'Search',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.add_circled),
+              activeIcon: Icon(CupertinoIcons.add_circled_solid),
+              label: 'Create',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(CupertinoIcons.person),
+              activeIcon: Icon(CupertinoIcons.person_fill),
+              label: 'Profile',
+            ),
+          ],
+        ),
       ),
     );
   }

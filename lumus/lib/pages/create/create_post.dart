@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:lumus/models/user.dart';
@@ -32,7 +33,7 @@ class _CreatePostState extends State<CreatePost> {
       );
       if(response == "success"){
         confirmationAlert();
-      } else{
+      } else {
         errorAlert();
       }
     } catch (e) {
@@ -46,7 +47,9 @@ class _CreatePostState extends State<CreatePost> {
       type: QuickAlertType.success,
       text: "Post publicado!",
       title: "Sucesso!",
-      confirmBtnText: "Concluir"
+      confirmBtnText: "Concluir",
+      backgroundColor: Color.fromRGBO(240, 240, 240, 1),
+      confirmBtnColor: Color.fromRGBO(3, 21, 37, 1),
     );
   }
 
@@ -69,18 +72,11 @@ class _CreatePostState extends State<CreatePost> {
   @override
   Widget build(BuildContext context) {
     final UserLumus user = Provider.of<UserProvider>(context).getUserLumus;
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(3, 30, 54, 1),
+    final User? currentUser = FirebaseAuth.instance.currentUser!;
+    bool isAnonymous = currentUser!.isAnonymous;
+    return !isAnonymous ? Scaffold(
+      backgroundColor: Color.fromRGBO(3, 21, 37, 1),
       appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(
-            Icons.close,
-            size: 30,
-          ),
-          onPressed: (){
-            Navigator.pop(context);
-          },
-        ),
         backgroundColor: Color.fromRGBO(3, 21, 37, 1),
         elevation: 0,
         actions: [
@@ -203,6 +199,22 @@ class _CreatePostState extends State<CreatePost> {
               ),
             )
         ],
+      ),
+    )
+    :
+    Scaffold(
+      backgroundColor: Color.fromRGBO(3, 21, 37, 1),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Text(
+            'Você está logado como anônimo. Nada aqui para mostrar.',
+            style: GoogleFonts.dmSans(
+              color: Color.fromRGBO(240, 240, 240, 1),
+              fontSize: 15,
+            ),
+          ),
+        ),
       ),
     );
   }

@@ -24,59 +24,66 @@ class TrendingMovies extends StatelessWidget {
           final movie = snapshot.data[itemIndex];
           return Padding(
             padding: const EdgeInsets.all(8.0),
-            child: GestureDetector(
-              onTap: () async {
-                try{
-                  final movieDetails = await TmdbApi().getMovieDetails(movie.id);
-                  final cast = await TmdbApi().getCast(movie.id);
-                  final crew = await TmdbApi().getCrew(movie.id);
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => MovieDetailsPage(
-                        movie: movieDetails,
-                        cast: cast,
-                        crew: crew,
+            child: Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                  color: Colors.white,
+                  width: 0.25, 
+                ),
+              ),
+              child: GestureDetector(
+                onTap: () async {
+                  try{
+                    final movieDetails = await TmdbApi().getMovieDetails(movie.id);
+                    final cast = await TmdbApi().getCast(movie.id);
+                    final crew = await TmdbApi().getCrew(movie.id);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MovieDetailsPage(
+                          movie: movieDetails,
+                        ),
+                      ),
+                    );
+                  }catch (e){
+                    print('Erro ao obter detalhes do filme: $e');
+                  }
+                },
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(12),
+                      child: SizedBox(
+                        height: 225,
+                        width: 140,
+                        child: Image.network(
+                          filterQuality: FilterQuality.high,
+                          fit: BoxFit.cover,
+                          '${Constants.imagePath}${snapshot.data[itemIndex].posterPath}'
+                        )
                       ),
                     ),
-                  );
-                }catch (e){
-                  print('Erro ao obter detalhes do filme: $e');
-                }
-              },
-              child: Stack(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: SizedBox(
-                      height: 225,
-                      width: 140,
-                      child: Image.network(
-                        filterQuality: FilterQuality.high,
-                        fit: BoxFit.cover,
-                        '${Constants.imagePath}${snapshot.data[itemIndex].posterPath}'
-                      )
-                    ),
-                  ),
-                  Positioned(
-                    top: 8,
-                    right: 8,
-                    child: Container(
-                      padding: EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        '${itemIndex + 1}',
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
+                    Positioned(
+                      top: 8,
+                      right: 8,
+                      child: Container(
+                        padding: EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Text(
+                          '${itemIndex + 1}',
+                          style: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                          )
                         )
                       )
                     )
-                  )
-                ],
+                  ],
+                ),
               ),
             ),
           );

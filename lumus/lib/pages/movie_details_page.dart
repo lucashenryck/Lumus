@@ -1,14 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:ionicons/ionicons.dart';
+import 'package:lumus/api/tmdb_api.dart';
 import 'package:lumus/constants.dart';
 import 'package:lumus/models/castncrew.dart';
 import 'package:lumus/models/movie.dart';
 import 'package:lumus/models/user.dart';
-import 'package:lumus/pages/searching%20for%20create/searching_page_for_review.dart';
 import 'package:lumus/providers/user_provider.dart';
 import 'package:lumus/resources/firestore_methods.dart';
 import 'package:provider/provider.dart';
@@ -17,13 +19,9 @@ class MovieDetailsPage extends StatefulWidget {
   const MovieDetailsPage({
     super.key, 
     required this.movie, 
-    required this.cast, 
-    required this.crew
   });
 
   final Movie movie;
-  final List<CastAndCrew> cast;
-  final List<CastAndCrew> crew;
 
   @override
   State<MovieDetailsPage> createState() => _MovieDetailsPageState();
@@ -33,13 +31,27 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
   late Stream<bool> isLikedStream;
   late Stream<bool> isWatchedStream;
   late Stream<bool> isToWatchStream;
+  late Stream<bool> isToFavoritesStream;
+  List<CastAndCrew> cast = [];
+  List<CastAndCrew> crew = [];
 
   @override
   void initState() {
     super.initState();
-    isLikedStream = FirestoreMethods().isMovieInLikedStream(FirebaseAuth.instance.currentUser!.uid, widget.movie.id!);
-    isWatchedStream = FirestoreMethods().isMovieInWatchedStream(FirebaseAuth.instance.currentUser!.uid, widget.movie.id!);
-    isToWatchStream = FirestoreMethods().isMovieInWatchlistStream(FirebaseAuth.instance.currentUser!.uid, widget.movie.id!);
+    initializeData();
+  }
+
+  Future<void> initializeData() async {
+    try {
+      isLikedStream = FirestoreMethods().isInLikedStream(FirebaseAuth.instance.currentUser!.uid, widget.movie.id!);
+      isWatchedStream = FirestoreMethods().isInWatchedStream(FirebaseAuth.instance.currentUser!.uid, widget.movie.id!);
+      isToWatchStream = FirestoreMethods().isInWatchlistStream(FirebaseAuth.instance.currentUser!.uid, widget.movie.id!);
+      isToFavoritesStream = FirestoreMethods().isInFavoritesStream(FirebaseAuth.instance.currentUser!.uid, widget.movie.id!);
+      cast = await TmdbApi().getCast(widget.movie.id!);
+      crew = await TmdbApi().getCrew(widget.movie.id!);
+    } catch (e) {
+      print('Error initializing data: $e');
+    }
   }
 
   void addToLiked(
@@ -90,14 +102,35 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
     }
   }
 
+  void addToFavorites(
+    String userId,
+    int movieId,
+    String? posterPath 
+  ) async {
+    try{
+      await FirestoreMethods().addToFavorites(
+        userId, 
+        movieId, 
+        posterPath
+      );
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final UserLumus user = Provider.of<UserProvider>(context).getUserLumus;
 
-    CastAndCrew? findDirector(){
-      return widget.crew.firstWhere(
-        (member) => member.job == "Director"
-      );
+    CastAndCrew? findDirector() {
+      try {
+        return crew.firstWhere(
+          (member) => member.job == "Director",
+        );
+      } catch (e) {
+        // Handle the case when no director is found
+        return null;
+      }
     }
     Size size = MediaQuery.of(context).size;
     CastAndCrew? director = findDirector();
@@ -130,8 +163,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
 
     void showMoreOptions() {
       showModalBottomSheet(
-        backgroundColor: Color.fromRGBO(3, 21, 37, 1),
-        shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(30))),
+        backgroundColor: Color.fromRGBO(9, 27, 53, 1),
         context: context,
         builder: (BuildContext context) {
           return SingleChildScrollView(
@@ -144,7 +176,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                     style: GoogleFonts.dmSans(
                       color: Color.fromRGBO(229, 210, 131, 1),
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.w400,
                     ),
                   ),
                 ),
@@ -156,6 +188,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceAround,
                   children: [
                     IconButton(
+                      tooltip: "Curtir",
                       onPressed: () => addToLiked(user.id, widget.movie.id!, widget.movie.posterPath), 
                       icon: StreamBuilder<bool>(
                         stream: isLikedStream,
@@ -163,13 +196,14 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                           bool isInLiked = snapshot.data ?? false;
                           return Icon(
                             isInLiked ? Ionicons.heart : Ionicons.heart_outline,
-                            color: isInLiked ? Colors.red : Colors.white,
+                            color: isInLiked ? Colors.red : Color.fromRGBO(240, 240, 240, 1),
                           );
                         },
                       ),
-                      iconSize: 50,
+                      iconSize: 45,
                     ),
                     IconButton(
+                      tooltip: "Já assisti",
                       onPressed: () => addToWatched(user.id, widget.movie.id!, widget.movie.posterPath), 
                       icon: StreamBuilder<bool>(
                         stream: isWatchedStream,
@@ -177,25 +211,44 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                           bool isWatchedStream = snapshot.data ?? false;
                           return Icon(
                             isWatchedStream ? Ionicons.eye : Ionicons.eye_off,
-                            color: isWatchedStream ? Colors.greenAccent : Color.fromRGBO(240, 240, 240, 1),
+                            color: isWatchedStream ? Colors.green : Color.fromRGBO(240, 240, 240, 1),
                           );
                         },
                       ),
-                      iconSize: 50,
+                      iconSize: 45,
                     ),
                     IconButton(
+                      tooltip: "Quero assistir",
                       onPressed: () => addToWatchlist(user.id, widget.movie.id!, widget.movie.posterPath), 
                       icon: StreamBuilder<bool>(
                         stream: isToWatchStream,
                         builder: (context, snapshot) {
                           bool isToWatchStream = snapshot.data ?? false;
                           return Icon(
-                            isToWatchStream ? Ionicons.time : Ionicons.time_outline,
-                            color: isToWatchStream ? Colors.blueAccent : Color.fromRGBO(240, 240, 240, 1),
+                            isToWatchStream ? Icons.bookmark_remove : Icons.bookmark_add_outlined,
+                            color: isToWatchStream ? Colors.blue : Color.fromRGBO(240, 240, 240, 1),
                           );
                         },
                       ),
-                      iconSize: 50,
+                      iconSize: 45,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: IconButton(
+                        tooltip: "Favorito",
+                        onPressed: () => addToFavorites(user.id, widget.movie.id!, widget.movie.posterPath), 
+                        icon: StreamBuilder<bool>(
+                          stream: isToFavoritesStream,
+                          builder: (context, snapshot) {
+                            bool isToFavoritesStream = snapshot.data ?? false;
+                            return Icon(
+                              FontAwesomeIcons.crown,
+                              color: isToFavoritesStream ? Colors.yellowAccent : Color.fromRGBO(240, 240, 240, 1),
+                            );
+                          },
+                        ),
+                        iconSize: 35,
+                      ),
                     ),
                   ],
                 ),
@@ -206,7 +259,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                   initialRating: 0,
                   itemSize: 50,
                   minRating: 0,
-                  unratedColor: Color.fromRGBO(0, 0, 0, 1),
+                  unratedColor: Color.fromRGBO(2, 19, 34, 1),
                   direction: Axis.horizontal,
                   allowHalfRating: true,
                   itemCount: 5,
@@ -222,36 +275,157 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                 Divider(
                   color: Color.fromRGBO(240, 240, 240, 1),
                 ),
-                const SizedBox(height: 16),
                 Column(
                   children: [
-                    OutlinedButton(
-                      onPressed: () {
-                        Navigator.push(context,
-                          MaterialPageRoute(builder: (context){
-                              return SearchingForReviewPage();
-                          }),
-                        );
-                      }, 
-                      style: OutlinedButton.styleFrom(
-                        side: BorderSide(color: Color.fromRGBO(240, 240, 240, 1)), // Change the color here
-                      ),
-                      child: Text(
-                        'Quer fazer uma review?',
-                        style: GoogleFonts.dmSans(
-                          color: Color.fromRGBO(240, 240, 240, 1),
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
+                    InkWell(
+                      onTap: (){},
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Criar publicação",
+                              style: GoogleFonts.dmSans(
+                                color: Color.fromRGBO(240, 240, 240, 1),
+                                fontSize: 17,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    IconButton(
-                      onPressed: (){}, 
-                      icon: Icon(Icons.playlist_add),
+                    Divider(
                       color: Color.fromRGBO(240, 240, 240, 1),
-                      iconSize: 50
                     ),
+                    InkWell(
+                      onTap: () {},
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Criar avaliação",
+                              style: GoogleFonts.dmSans(
+                                color: Color.fromRGBO(240, 240, 240, 1),
+                                fontSize: 17,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Divider(
+                      color: Color.fromRGBO(240, 240, 240, 1),
+                    ),
+                    InkWell(
+                      onTap: (){
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return StreamBuilder(
+                              stream: FirebaseFirestore.instance
+                                  .collection("Users collections")
+                                  .doc(user.id)
+                                  .collection("Custom")
+                                  .snapshots(),
+                              builder: (context, AsyncSnapshot<QuerySnapshot> snapshot) {
+                                if (snapshot.connectionState == ConnectionState.waiting) {
+                                  return Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                                }
+                                if (snapshot.hasError) {
+                                  return Center(
+                                    child: Text('Erro: ' + snapshot.error.toString()),
+                                  );
+                                }
+                                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                                  return AlertDialog(
+                                    backgroundColor: Color.fromRGBO(9, 27, 53, 1),
+                                    title: Text(
+                                      "Escolha uma lista",
+                                      style: GoogleFonts.dmSans(
+                                        color: Color.fromRGBO(240, 240, 240, 1),
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w200,
+                                      ),
+                                    ),
+                                    content: Center(
+                                      child: Text('NADA ATÉ O MOMENTO!'),
+                                    ),
+                                  );
+                                }
+                                return AlertDialog(
+                                  backgroundColor: Color.fromRGBO(9, 27, 53, 1),
+                                  title: Text(
+                                    "Escolha uma lista:",
+                                    style: GoogleFonts.dmSans(
+                                      color: Color.fromRGBO(240, 240, 240, 1),
+                                      fontSize: 20,
+                                      fontWeight: FontWeight.w200,
+                                    ),
+                                  ),
+                                  content: SingleChildScrollView(
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        // Build ListTiles dynamically based on custom lists
+                                        for (QueryDocumentSnapshot customList in snapshot.data!.docs)
+                                          ListTile(
+                                            title: Text(
+                                              customList['name'],
+                                              style: GoogleFonts.dmSans(
+                                                color: Color.fromRGBO(229, 210, 131, 1),
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            onTap: () async {
+                                              try {
+                                                await FirestoreMethods().addItemToCustomList(
+                                                  widget.movie.id.toString(),
+                                                  widget.movie.posterPath,
+                                                  user.id,
+                                                  customList['custom_list_id'],
+                                                );
+
+                                                // Close the dialog
+                                                Navigator.pop(context);
+                                              } catch (error) {
+                                                print('Error adding to custom list: $error');
+                                                // Handle the error as needed
+                                              }
+                                              Navigator.pop(context);
+                                            },
+                                          ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
+                        );
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16, bottom: 16),
+                        child: Row(
+                          children: [
+                            Text(
+                              "Adicionar à uma lista",
+                              style: GoogleFonts.dmSans(
+                                color: Color.fromRGBO(240, 240, 240, 1),
+                                fontSize: 17,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
                   ],
                 ),
               ],
@@ -266,7 +440,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
-            backgroundColor: Color.fromRGBO(3, 30, 54, 1),
+            backgroundColor: Color.fromRGBO(3, 21, 37, 1),
             expandedHeight: size.height * 0.225,
             floating: false,
             pinned: true,
@@ -432,7 +606,7 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                   ),
                 ),
                 const SizedBox(height: 16),
-                if(widget.cast.isNotEmpty)
+                if(cast.isNotEmpty)
                 Column(
                   children: [
                     Divider(
@@ -455,16 +629,16 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                       height: 150,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: widget.cast.length,
+                        itemCount: cast.length,
                         itemBuilder: (context, index) {
-                          return CastCard(actor: widget.cast[index]);
+                          return CastCard(actor: cast[index]);
                         },
                       ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 16),
-                if(widget.crew.isNotEmpty)
+                if(crew.isNotEmpty)
                 Column(
                   children: [
                     Divider(
@@ -487,10 +661,10 @@ class _MovieDetailsPageState extends State<MovieDetailsPage> {
                       height: 150,
                       child: ListView.builder(
                         scrollDirection: Axis.horizontal,
-                        itemCount: widget.crew.length,
+                        itemCount: crew.length,
                         itemBuilder: (context, index) {
                           return CastCard(
-                              actor: widget.crew[index]);
+                              actor: crew[index]);
                         },
                       ),
                     ),

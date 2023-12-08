@@ -52,7 +52,7 @@ dependencies:
   iconsax: ^0.0.8
   like_button: ^2.0.5
   ionicons: ^0.2.2
-  shared_preferences: ^2.2.2
+  font_awesome_flutter: ^10.6.0
 
 dev_dependencies:
   flutter_test:

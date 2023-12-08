@@ -199,23 +199,23 @@ class FirestoreMethods{
   Future<void> addToLiked (String userId, int movieOrSeriesId, String? posterPath) async {
     try{
       DocumentReference userDocRef = FirebaseFirestore.instance.collection('Users collections').doc(userId);
-      DocumentReference favoriteDocRef = userDocRef.collection('Liked').doc(movieOrSeriesId.toString());
-      DocumentSnapshot movieSnapshot = await favoriteDocRef.get();
+      DocumentReference likedDocRef = userDocRef.collection('Liked').doc(movieOrSeriesId.toString());
+      DocumentSnapshot movieSnapshot = await likedDocRef.get();
       if (movieSnapshot.exists) {
-        await favoriteDocRef.delete();
-        print('Movie removed from liked successfully');
+        await likedDocRef.delete();
+        print('Removed from liked successfully');
       } else {
-        await favoriteDocRef.set({
+        await likedDocRef.set({
           'poster_path': posterPath,
         });
-        print('Movie added to liked successfully');
+        print('Added to liked successfully');
       }
     } catch (e) {
       print(e.toString());
     }
   }
 
-  Stream<bool> isMovieInLikedStream(String userId, int movieOrSeriesId) {
+  Stream<bool> isInLikedStream(String userId, int movieOrSeriesId) {
     return _firestore
         .collection('Users collections')
         .doc(userId)
@@ -232,19 +232,19 @@ class FirestoreMethods{
       DocumentSnapshot movieSnapshot = await watchedDocRef.get();
       if (movieSnapshot.exists) {
         await watchedDocRef.delete();
-        print('Movie removed from watched successfully');
+        print('Removed from watched successfully');
       } else {
         await watchedDocRef.set({
           'poster_path': posterPath,
         });
-        print('Movie added to watched successfully');
+        print('Added to watched successfully');
       }
     } catch (e) {
       print(e.toString());
     }
   }
 
-  Stream<bool> isMovieInWatchedStream(String userId, int movieOrSeriesId) {
+  Stream<bool> isInWatchedStream(String userId, int movieOrSeriesId) {
     return _firestore
         .collection('Users collections')
         .doc(userId)
@@ -261,19 +261,19 @@ class FirestoreMethods{
       DocumentSnapshot movieSnapshot = await watchlistDocRef.get();
       if (movieSnapshot.exists) {
         await watchlistDocRef.delete();
-        print('Movie removed from Watchlist successfully');
+        print('Removed from Watchlist successfully');
       } else {
         await watchlistDocRef.set({
           'poster_path': posterPath,
         });
-        print('Movie added to Watchlist successfully');
+        print('Added to Watchlist successfully');
       }
     } catch (e) {
       print(e.toString());
     }
   }
 
-  Stream<bool> isMovieInWatchlistStream(String userId, int movieOrSeriesId) {
+  Stream<bool> isInWatchlistStream(String userId, int movieOrSeriesId) {
     return _firestore
         .collection('Users collections')
         .doc(userId)
@@ -281,5 +281,122 @@ class FirestoreMethods{
         .doc(movieOrSeriesId.toString())
         .snapshots()
         .map((snapshot) => snapshot.exists);
+  }
+  
+  Future<void> addToFavorites(String userId, int movieOrSeriesId, String? posterPath) async {
+    try{
+      DocumentReference userDocRef = FirebaseFirestore.instance.collection('Users collections').doc(userId);
+      DocumentReference favoriteDocRef = userDocRef.collection('Favorites').doc(movieOrSeriesId.toString());
+      DocumentSnapshot movieSnapshot = await favoriteDocRef.get();
+      if (movieSnapshot.exists) {
+        await favoriteDocRef.delete();
+        print('Removed from favorites successfully');
+      } else {
+        await favoriteDocRef.set({
+          'poster_path': posterPath,
+        });
+        print('Added to favorites successfully');
+      }
+    } catch (e) {
+      print(e.toString());
+    }
+  }
+
+  Stream<bool> isInFavoritesStream(String userId, int movieOrSeriesId) {
+    return _firestore
+        .collection('Users collections')
+        .doc(userId)
+        .collection('Favorites')
+        .doc(movieOrSeriesId.toString())
+        .snapshots()
+        .map((snapshot) => snapshot.exists);
+  }
+
+  Future<void> createCustomList (String userId, String creator, String name, String? description, String profilePhoto) async {
+    try {
+      CollectionReference usersCollection = FirebaseFirestore.instance.collection('Users collections');
+      DocumentReference userDocument = usersCollection.doc(userId);
+      String customId = const Uuid().v1();
+      CollectionReference customCollection = userDocument.collection('Custom');
+      DocumentReference customDocument = customCollection.doc(customId);
+      await customDocument.set({
+        'name': name,
+        'creator': creator,
+        'profile_photo': profilePhoto,
+        'description': description,
+        'user_id': userId,
+        'custom_list_id' : customId
+      });
+
+      print('Custom list created successfully');
+    } catch (e) {
+      print('Error creating custom list: $e');
+    }
+  }
+
+  Future<void> addItemToCustomList (String movieOrSeriesId, String? posterPath, String userId, String customListId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection("Users collections")
+          .doc(userId)
+          .collection("Custom")
+          .doc(customListId)
+          .collection("Items")
+          .doc(movieOrSeriesId)
+          .set({'poster_path': posterPath});
+    } catch (error) {
+      print('Error adding movie to custom list: $error');
+    }
+  }
+
+  Future<void> deleteCustomList(String userId, String customListId) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection("Users collections")
+          .doc(userId)
+          .collection("Custom")
+          .doc(customListId)
+          .delete();
+      await FirebaseFirestore.instance
+          .collection("Users collections")
+          .doc(userId)
+          .collection("Custom")
+          .doc(customListId)
+          .collection("Items")
+          .get()
+          .then((querySnapshot) {
+        for (QueryDocumentSnapshot doc in querySnapshot.docs) {
+          doc.reference.delete();
+        }
+      });
+      print('Custom list deleted successfully');
+    } catch (e) {
+      print('Error deleting custom list: $e');
+    }
+  }
+
+  Future<void> followUser(String uid, String followId) async {
+    try {
+      DocumentSnapshot snap = await _firestore.collection('Users').doc(uid).get();
+      List following = (snap.data()! as dynamic)['following'];
+
+      if(following.contains(followId)){
+        await _firestore.collection('Users').doc(followId).update({
+          'followers': FieldValue.arrayRemove([uid])
+        });
+        await _firestore.collection('Users').doc(uid).update({
+          'following': FieldValue.arrayRemove([followId])
+        });
+      } else {
+        await _firestore.collection('Users').doc(followId).update({
+          'followers': FieldValue.arrayUnion([uid])
+        });
+        await _firestore.collection('Users').doc(uid).update({
+          'following': FieldValue.arrayUnion([followId])
+        });
+      }
+    } catch (e) {
+
+    }
   }
 }

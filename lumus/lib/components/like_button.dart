@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:iconsax/iconsax.dart';
+import 'package:ionicons/ionicons.dart';
 
 class LikeButton extends StatelessWidget {
   const LikeButton({
@@ -16,8 +16,8 @@ class LikeButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Icon(
-        isLiked ? Iconsax.heart5 : Iconsax.heart,
-        color: isLiked ? Colors.redAccent : Color.fromRGBO(240, 240, 240, 1),
+        isLiked ? Ionicons.heart : Ionicons.heart_outline,
+        color: isLiked ? Colors.redAccent : Colors.grey,
       ),
     );
   }

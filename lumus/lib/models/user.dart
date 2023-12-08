@@ -29,6 +29,18 @@ class UserLumus{
       "followers" : followers
   };
 
+  factory UserLumus.fromMap(Map<String, dynamic> data) {
+    return UserLumus(
+      id: data['user_id'],
+      email: data['email'],
+      username: data['username'],
+      profilePhoto: data['profile_photo'],
+      description: data['description'],
+      following: List.from(data['following']),
+      followers: List.from(data['followers']),
+    );
+  }
+
   static UserLumus fromSnap(DocumentSnapshot snap){
     var snapshot = snap.data() as Map<String, dynamic>;
     return UserLumus(
